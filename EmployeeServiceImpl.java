@@ -1,0 +1,71 @@
+package com.websystique.springmvc.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.websystique.springmvc.dao.EmployeeDao;
+import com.websystique.springmvc.model.Employee;
+
+@Service("employeeService")
+@Transactional
+public class EmployeeServiceImpl implements EmployeeService {
+
+	@Autowired
+	private EmployeeDao dao;
+	
+	public Employee findById(int id) {
+		return dao.findById(id);
+	}
+	
+	public void save(Employee employee) {
+		
+		dao.save(employee);
+	}
+
+	/*
+	 * Since the method is running with Transaction, No need to call hibernate update explicitly.
+	 * Just fetch the entity from db and update it with proper values within transaction.
+	 * It will be updated in db once transaction ends. 
+	 */
+	public void updateEmployee(Employee employee) {
+		Employee entity = dao.findById(employee.getId());
+		if(entity!=null){
+			//entity.setName(employee.getName());
+			entity.setJoiningDate(employee.getJoiningDate());
+			entity.setSalary(employee.getSalary());
+			//entity.setSsn(employee.getSsn());
+		}
+	}
+	
+	public boolean authenticateEmployee(String employeeId,String password){
+		return dao.authenticateEmployee(employeeId,password);
+		
+	}
+	
+	public void deleteEmployeeBySsn(String ssn) {
+		dao.deleteEmployeeBySsn(ssn);
+	}
+	
+	public List<Employee> findAllEmployees() {
+		return dao.findAllEmployees();
+	}
+
+	public Employee findEmployeeByEmployeeId(String employeeId) {
+		return dao.findEmployeeByEmployeeId(employeeId);
+	}
+
+	public boolean isEmployeeIdUnique(Integer id,String employeeId) {
+		Employee employee = findEmployeeByEmployeeId(employeeId);
+		return ( employee == null || ((id!= null) && (employee.getId() == id)));
+	}
+
+	public boolean isEmployeeExist(Employee employee) {
+		// TODO Auto-generated method stub
+		dao.save(employee);
+		return true;
+	}
+
+}
